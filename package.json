@@ -1,0 +1,26 @@
+{
+  "name": "template-frontend",
+  "version": "1.0.0",
+  "description": "Front-End template",
+  "dependencies": {},
+  "devDependencies": {
+    "del": "^2.2.2",
+    "gulp": "^3.9.1",
+    "gulp-connect": "^5.0.0",
+    "gulp-rigger": "^0.5.8",
+    "gulp-sequence": "^0.4.6",
+    "gulp-size": "^2.1.0",
+    "opn": "^4.0.2"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/MrShved/TemplateFrontend.git"
+  },
+  "author": "Shvedov Dmitry [MrShved] <shved.mr@gmail.com>",
+  "homepage": "https://github.com/MrShved/TemplateFrontend",
+  "bugs": {
+    "url": "https://github.com/MrShved/TemplateFrontend/issues"
+  },
+  "main": "gulpfile.js",
+  "license": "ISC"
+}

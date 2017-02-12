@@ -1,0 +1,20 @@
+{
+  "name": "template-frontend",
+  "description": "Front-End template",
+  "main": "gulpfile.js",
+  "authors": [
+    "Shvedov Dmitry [MrShved] <shved.mr@gmail.com>"
+  ],
+  "license": "ISC",
+  "homepage": "",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "jquery": "^3.1.1"
+  }
+}
