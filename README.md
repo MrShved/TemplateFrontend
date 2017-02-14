@@ -3,8 +3,8 @@
 ## Требования
 Для начала работы подрубуется установить `nodejs` и `bower`
 
-1. [Установка Nodejs](https://nodejs.org/en "Установка Node.js")
-2. Установка Bower `$ npm install -g bower`
+ 1. [Установка Nodejs](https://nodejs.org/en "Установка Node.js")
+ 2. Установка Bower `$ npm install -g bower`
 
 ## Задачи Gulp
  - `$ gulp connect` - запуск сервера
