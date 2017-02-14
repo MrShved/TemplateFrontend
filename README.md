@@ -9,6 +9,8 @@
 ## Задачи Gulp
  - `$ gulp connect` - запуск сервера
  - `$ gulp html` - сборка HTML с помощью `gulp-rigger`
+ - `$ gulp sass` - компилиция Scss
+ - `$ gulp js` - сборка JavaScript
  - `$ gulp clean` - очистка каталога `build/`
  - `$ gulp build` - полная сборка проекта
  - `$ gulp watch` - запуск задачи `watch` для отслеживания изменений

@@ -14,29 +14,35 @@ var gulp               = require('gulp'),                      // Движок
     uglify             = require('gulp-uglify'),               // Минификация JS 
     concat             = require('gulp-concat'),               // Объединение файлов
     sourcemaps         = require('gulp-sourcemaps'),           // Написание карт встроенных источников
-    streamqueue        = require('streamqueue')                // Очередь потоков , сохранение потоков данных
+    streamqueue        = require('streamqueue'),               // Очередь потоков , сохранение потоков данных
+    sass               = require('gulp-sass'),                 // Компилируем Sass файлы
+    prefixer           = require('gulp-autoprefixer'),         // Автопревиксы
+    cssmin             = require('gulp-clean-css')             // Минификация CSS
 
 /* Настройки путей */
 var projectPath = {
     /* Пути сборки */
-    dest: {
+    build: {
         html:               'build/',
-        js:                 'build/js/',
-        jsMainFile:         'main.js'
+        js:                 'build/assets/js/',
+        jsMainFile:         'main.js',
+        css:                'build/assets/css/'
     },
 
     /* Пути источников */
     src: {
-        html:               ['app/**/*.html','!app/html/common/**/*.*'],
-        jsCustom:           'app/js/custom.js',
-        jsVendor:           'app/js/vendor.js'
+        html:               ['src/**/*.html','!src/html/common/**/*.*'],
+        jsCustom:           'src/js/custom.js',
+        jsVendor:           'src/js/vendor.js',
+        sass:               'src/sass/style.scss'
     },
 
     /* Пути для отслеживания */
     watch: {
-        html:               'app/**/*.html',
-        js:                 'app/js/**/*.js'
-        },
+        html:               'src/**/*.html',
+        js:                 'src/js/**/*.js',
+        sass:               'src/sass/**/*.scss'
+    },
 
     /* Исключение для очистки */
     clean:                  'build/**/*'
@@ -59,27 +65,52 @@ gulp.task('html', function () {
     .pipe(size({
         title: 'HTML'
         }))
-    .pipe(gulp.dest(projectPath.dest.html))
+    .pipe(gulp.dest(projectPath.build.html))
     .pipe(connect.reload());
+});
+
+/* Sass */
+gulp.task('sass', function() {
+    gulp.src(projectPath.src.sass)
+        .pipe(sourcemaps.init())
+        .pipe(sass({
+            includePaths: require('node-normalize-scss').includePaths
+            }))
+        .pipe(prefixer('> 2%'))
+        .pipe(gulp.dest(projectPath.build.css))
+        .pipe(rename({
+            suffix: '.min'
+            }))
+        .pipe(cssmin())
+        .pipe(sourcemaps.write('./'))
+        .pipe(size({
+            title: 'CSS'
+        }))
+        .pipe(gulp.dest(projectPath.build.css))
+        .pipe(connect.reload());
 });
 
 /* JavaScript */
 gulp.task('js', function () {
-    return streamqueue({
+    streamqueue({
         objectMode: true
         },
         gulp.src(projectPath.src.jsVendor)
             .pipe(rigger())
-            .pipe(size({title: 'Vendor JavaScript'})),
+            .pipe(size({
+                title: 'Vendor JavaScript'
+            })),
         gulp.src(projectPath.src.jsCustom)
             .pipe(rigger())
             .pipe(jshint())
             .pipe(jshint.reporter(stylish))
-            .pipe(size({title: 'Custom JavaScript'}))
+            .pipe(size({
+                title: 'Custom JavaScript'
+            }))
     )
-    .pipe(concat(projectPath.dest.jsMainFile))
+    .pipe(concat(projectPath.build.jsMainFile))
     .pipe(sourcemaps.init())
-    .pipe(gulp.dest(projectPath.dest.js))
+    .pipe(gulp.dest(projectPath.build.js))
     .pipe(rename({
         suffix: '.min'
     }))
@@ -88,7 +119,7 @@ gulp.task('js', function () {
     .pipe(size({
         title: 'Total JavaScript'
         }))
-    .pipe(gulp.dest(projectPath.dest.js))
+    .pipe(gulp.dest(projectPath.build.js))
     .pipe(connect.reload());
 });
 
@@ -97,16 +128,21 @@ gulp.task('clean', function () {
     del(projectPath.clean);
 });
 
-/* Сборка */
-gulp.task('build', function (cb) {
-    sequence('clean', 'html', 'js') (cb)
+/* Отслеживание */
+gulp.task('watch', function () {
+    gulp.watch([projectPath.watch.html], ['html']);
+    gulp.watch([projectPath.watch.sass], ['sass']);
+    gulp.watch([projectPath.watch.sass], ['js']);
 });
 
-/* Отслеживание */
-gulp.task('watch', function() {
-    gulp.watch([projectPath.watch.html], ['html']);
-    gulp.watch([projectPath.watch.html], ['js']);
+/* Сборка */
+gulp.task('build', function (cb) {
+    sequence(
+        'clean',
+        'html',
+        'sass',
+        'js') (cb)
 });
 
 /*По умолчанию*/
-gulp.task('default', ['build','connect', 'watch']);
+gulp.task('default', ['connect', 'watch']);
