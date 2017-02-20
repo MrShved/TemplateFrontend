@@ -1,2 +1,10 @@
+/* Переменные и миксины */
+@import "variables";
+@import "common/png-sprite";
+
 /* Подключение библиотек из дериктории Bower */
 @import "normalize";
+
+// Компоненты
+@include retina-sprites($retina-groups);
+@import "common/svg-sprite";
