@@ -19,13 +19,16 @@ var gulp               = require('gulp'),                      // Движок
     prefixer           = require('gulp-autoprefixer'),         // Автопревиксы
     cssmin             = require('gulp-clean-css'),            // Минификация CSS
     imagemin           = require('gulp-imagemin'),             // Оптимизация изображений
+    mozjpeg            = require('imagemin-mozjpeg'),          // Минимизируем изображения
     pngquant           = require('imagemin-pngquant'),         // PNG плагин для ImageMin
     spritesmith        = require('gulp.spritesmith'),          // Конвертируем изображения в спрайты и CSS файлы
     svg2png            = require('gulp-svg2png'),              // Конвертируем SVGs в PNGs
     svgmin             = require('gulp-svgmin'),               // Минификация SVG с SVGO
-    svgsprite          = require('gulp-svg-spritesheet'),      // Конвертируем SVG в спрайты и CSS файлы
+    cheerio            = require('gulp-cheerio'),              // Меняем параметры в файлах
+    svgstore           = require('gulp-svgstore'),             // Собираем SVG спрайт
     path               = require('path'),                      // Работа с путями
     merge              = require('merge-stream');              // Слияние потоков
+
 
 /* Настройки путей */
 var path = {
@@ -39,7 +42,7 @@ var path = {
         svg:                'build/assets/img/svg/',
         pngSprite:          'build/assets/img/sprites/png/',
         pngSpriteCSS:       'src/sass/common/',
-        svgSprite:          'build/assets/img/sprites/svg/svg-sprite.svg',
+        svgSprite:          'build/assets/img/sprites/svg',
         svgSpriteNoSvg:     'build/assets/img/sprites/svg/svg-sprite.png',
         svgSpriteCSS:       'src/sass/common/_svg-sprite.scss'
         
@@ -161,12 +164,13 @@ gulp.task('js', function () {
 /* Задача - Изображения */
 gulp.task('images', function () {
     return gulp.src(path.src.img)
-        .pipe(imagemin({
-            progressive: true,
-            optimizationLevel: 5,
-            use: [pngquant()],
-            interlaced: true
-        }))
+        .pipe(imagemin([
+            pngquant(),
+            mozjpeg({
+                //progressive: true,
+                quality: 88
+            })
+        ]))
         .pipe(size({
             title: 'Images.......'
         }))
@@ -207,21 +211,21 @@ gulp.task('png-sprite',function generateSpritesheets () {
 
 /* Задача - Компиляция SVG Спрайт */
 gulp.task('svg-sprite', function () {
-    gulp.src(path.src.svgSprite)
-        .pipe(svgsprite({
-            cssPathNoSvg: '../img/sprites/svg/svg-sprite.png',
-            cssPathSvg: '../img/sprites/svg/svg-sprite.svg',
-            padding: 0,
-            pixelBase: 16,
-            positioning: 'packed',
-            templateSrc: path.src.svgSpriteTpl,
-            templateDest: path.build.svgSpriteCSS,
-            units: 'px'
+    return gulp.src(path.src.svgSprite)
+        .pipe(svgmin(function (file) {
+            return {
+                plugins: [
+                {cleanupIDs: { minify: true }},
+                {removeTitle: { remove : true }}
+                ]
+            }
         }))
-        .pipe(svgmin())
-        .pipe(gulp.dest(path.build.svgSprite))
-        .pipe(svg2png())
-        .pipe(gulp.dest(path.build.svgSpriteNoSvg));
+        .pipe(svgstore({ inlineSvg: true }))
+        .pipe(cheerio(function ($) {
+            $('svg').attr('style',  'display:none');
+        }))
+        .pipe(rename('sprite-svg.svg'))
+        .pipe(gulp.dest(path.build.svgSprite));
 });
 
 /* Задача - Очистка проекта */
