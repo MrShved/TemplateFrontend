@@ -1,5 +1,9 @@
 /* Переменные и миксины */
 @import "variables";
+@import "mixins ";
 
 /* Подключение библиотек из дериктории Bower */
 @import "normalize";
+
+/* Общие стили */
+@import "common";

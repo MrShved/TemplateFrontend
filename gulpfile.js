@@ -31,55 +31,59 @@ var gulp               = require('gulp'),                      // Движок
 
 
 /* Настройки путей */
+
+// Глобальные пути
 var path = {
+    srcPath:   'src/',
+    buildPath: 'build/',
+    cmsPath:   'assets/',
+}
+
+var path = {
+
     /* Пути сборки */
     build: {
-        html:               'build/',
-        css:                'build/assets/css/',
-        js:                 'build/assets/js/',
+        html:               path.buildPath,
+        css:                path.buildPath + path.cmsPath + 'css/',
+        js:                 path.buildPath + path.cmsPath + 'js/',
         jsMainFile:         'main.js',
-        img:                'build/assets/img/images/',
-        svg:                'build/assets/img/svg/',
-        pngSprite:          'build/assets/img/sprites/png/',
-        pngSpriteCSS:       'src/sass/common/',
-        svgSprite:          'build/assets/img/sprites/svg',
-        svgSpriteNoSvg:     'build/assets/img/sprites/svg/svg-sprite.png',
-        svgSpriteCSS:       'src/sass/common/_svg-sprite.scss'
-        
+        img:                path.buildPath + path.cmsPath + 'images/',
+        svg:                path.buildPath + path.cmsPath + 'img/svg/',
+        pngSprite:          path.buildPath + path.cmsPath + 'img/sprites/png/',
+        pngSpriteCSS:       path.srcPath + 'sass/mixins/',
+        svgSprite:          path.buildPath + path.cmsPath + 'img/sprites/svg',
     },
 
     /* Пути источников */
     src: {
-        html:               ['src/**/*.html','!src/html/common/**/*.*'],
-        sass:               'src/sass/style.scss',
-        jsCustom:           'src/js/custom.js',
-        jsVendor:           'src/js/vendor.js',
-        img:                'src/img/images/**/*.*',
-        svg:                'src/img/svg/**/*.svg',
-        pngSprite:          'src/img/sprites/png/*.png',
-        pngRetinaSprite:    'src/img/sprites/png/*@2x.png',
-        pngSpriteTpl:       'src/sass/tpl/_png-sprite.tpl',
-        svgSprite:          'src/img/sprites/svg/**/*.svg',
-        svgSpriteTpl:       'src/sass/tpl/_svg-sprite.tpl'
-        
+        html: [
+                            path.srcPath + '**/*.html',
+                            '!' + path.srcPath + '/html/common/**/*.*'
+        ],
+        sass:               path.srcPath + 'sass/style.scss',
+        jsCustom:           path.srcPath + 'js/custom.js',
+        jsVendor:           path.srcPath + 'js/vendor.js',
+        img:                path.srcPath + 'img/images/**/*.*',
+        svg:                path.srcPath + 'img/svg/**/*.svg',
+        pngSprite:          path.srcPath + 'img/sprites/png/',
+        svgSprite:          path.srcPath + 'img/sprites/svg/**/*.svg',
     },
 
     /* Пути для отслеживания */
     watch: {
-        html:               'src/**/*.html',
-        js:                 'src/js/**/*.js',
-        sass:               'src/sass/**/*.scss',
-        img:                'src/img/images/**/*.*',
-        svg:                'src/img/svg/**/*.svg',
-        pngSprite:          'src/img/sprites/png/**/*.png',
-        svgSprite:          'src/img/sprites/svg/**/*.svg'
+        html:               path.srcPath + '**/*.html',
+        js:                 path.srcPath + 'js/**/*.js',
+        sass:               path.srcPath + 'sass/**/*.scss',
+        img:                path.srcPath + 'img/images/**/*.*',
+        svg:                path.srcPath + 'img/svg/**/*.svg',
+        pngSprite:          path.srcPath + 'img/sprites/png/',
+        svgSprite:          path.srcPath + 'img/sprites/svg/**/*.svg'
     },
 
     /* Дириктория очистки */
     clean: {
-        build:              'build/**/*',
-        pngSpriteCSS:       'src/sass/common/*png-sprite.*',
-        svgSpriteCSS:       'src/sass/common/*svg-sprite.*'
+        build:              path.buildPath + '**/*',
+        pngSpriteCSS:       path.srcPath + 'sass/mixins/*png-sprite.*'
     }
 };
 
@@ -181,17 +185,20 @@ gulp.task('images', function () {
 
 /* Задача - Компиляция PNG Спрайт */
 gulp.task('png-sprite',function generateSpritesheets () {
+
+    // Имя PNG спрайта
+    var nameSprite = 'png-sprite';
+
     // Генератор стиля
-    var spriteData = gulp.src(path.src.pngSprite)
+    var spriteData = gulp.src(path.src.pngSprite + '**/*.png')
         .pipe(spritesmith({
-            imgName:         'png-sprite.png',
-            cssName:         '_png-sprite.scss',
-            imgPath:         '../img/sprites/png/png-sprite.png',  
-            retinaSrcFilter: path.src.pngRetinaSprite,
-            retinaImgName:   'png-sprite@2x.png', 
-            retinaImgPath:   '../img/sprites/png/png-sprite@2x.png',
-            algorithm:       'binary-tree',
-            cssTemplate: path.src.pngSpriteTpl,
+            imgName: nameSprite + '.png',
+            cssName: '_' + nameSprite + '.scss',
+            imgPath: '../img/sprites/png/' + nameSprite +'.png',  
+            retinaSrcFilter: path.src.pngSprite + '**/*@2x.png',
+            retinaImgName: nameSprite + '@2x.png', 
+            retinaImgPath: '../img/sprites/png/' + nameSprite + '@2x.png',
+            algorithm: 'binary-tree',
             cssVarMap: function(sprite) {
                 sprite.name = 'sprite-' + sprite.name
             }   
